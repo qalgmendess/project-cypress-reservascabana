@@ -125,6 +125,42 @@ describe('Reserva com seleção de datas', () => {
             .should('be.visible');
     });
 
+    it.only('Exibe erro ao selecionar check-out anterior ao check-in', () => {
+        const hoje = new Date();
+
+        // Check-in: 2 dias à frente
+        const dataCheckin = new Date(hoje);
+        dataCheckin.setDate(dataCheckin.getDate() + 2);
+
+        // Check-out: 1 dia à frente (anterior ao check-in)
+        const dataCheckout = new Date(hoje);
+        dataCheckout.setDate(dataCheckout.getDate() + 1);
+
+        const diaCheckin = dataCheckin.getDate();
+        const diaCheckout = dataCheckout.getDate();
+
+        cy.visit('https://cabanaslagodacolina.com.br/reservas/inicio');
+
+        // Abrir calendário
+        cy.get('input[matstartdate]').click();
+
+        // Selecionar check-in (ex: 08/05)
+        cy.get('.mat-calendar-body-cell-content')
+            .contains(`${diaCheckin}`)
+            .click();
+
+        // Selecionar check-out (ex: 07/05 - anterior ao check-in)
+        cy.get('.mat-calendar-body-cell-content')
+            .contains(`${diaCheckout}`)
+            .click();
+
+        // Validar a mensagem de erro correta
+        cy.get('.mat-mdc-form-field-hint')
+            .should('be.visible')
+            .and('contain.text', 'Selecione pelo menos o dia seguinte');
+    });
+
+
 
 
 
